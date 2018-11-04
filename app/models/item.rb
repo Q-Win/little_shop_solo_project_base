@@ -23,4 +23,22 @@ class Item < ApplicationRecord
       .order('total_ordered desc')
       .limit(quantity)
   end
+
+  def check_for_discount
+    discounts.count >= 1
+  end
+
+  def apply_discount(amount_purchased)
+    if check_for_discount
+      if discounts.where("quantity <= #{amount_purchased}").count > 0
+        discount = discounts.where("quantity <= #{amount_purchased}").order(:quantity).reverse
+        discount_rate = discount.first.rate/100.0
+        final_price = price * discount_rate
+      else
+        self.price
+      end
+    else
+      self.price
+    end
+  end
 end

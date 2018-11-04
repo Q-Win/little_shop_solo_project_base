@@ -1,6 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe Item, type: :model do
+
+  before(:each) do
+    @merch = User.create(email: 'bob', password: 'bob', name: 'bob', address: "bob",
+      city: 'Denver', state: 'CO', zip: 80203, role: 1)
+    @item_1 = @merch.items.create(name: "taco", description: "yum", price: 100,
+      inventory: 1000)
+    @item_2 = @merch.items.create(name: "burrito", description: "yum", price: 200,
+      inventory: 1000)
+    @discount_1 = @item_1.discounts.create(rate: 70, quantity: 100)
+    @discount_2 = @item_1.discounts.create(rate: 50, quantity: 5)
+    @discount_3 = @item_1.discounts.create(rate: 10, quantity: 2)
+  end
+
   describe 'Relationships' do
     it { should belong_to(:user) }
     it { should have_many(:discounts) }
@@ -36,5 +49,17 @@ RSpec.describe Item, type: :model do
   end
 
   describe 'Instance Methods' do
+    it 'can ignore discounts when there isnt one' do
+      item_2_price = @item_2.apply_discount(100)
+
+      expect(item_2_price).to eq(200)
+    end
+
+    it 'can apply discount' do
+      item_1_price = @item_1.apply_discount(10)
+
+      expect(item_1_price).to eq(50.0)
+    end
+
   end
 end

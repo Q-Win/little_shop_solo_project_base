@@ -32,8 +32,9 @@ Sorry there are no orders yet.
         <td id="order-details-<%= order.id %>">
           <% order.order_items.each do |o_item| %>
             <%= o_item.item.name %>
+            
             quantity: <%= o_item.quantity %>
-            price: <%= number_to_currency(o_item.price) %>
+            price: <%= number_to_currency(o_item.item.apply_discount(o_item.quantity)) %>
             subtotal: <%= number_to_currency(o_item.subtotal) %>
             <br />
           <% end %>

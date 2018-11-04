@@ -31,6 +31,8 @@
 <%= button_to 'Add to Cart', cart_item_quantity_path(item_id: @item.id), method: :patch, params: {quantity: :more} %>
 
 <% if current_admin? || current_user == @item.user %>
-<%= link_to 'Edit', edit_merchant_item(@item.user, @item) %> |
+<%= link_to 'Edit', edit_merchant_item_path(@item.user, @item) %> |
+<%= link_to 'Add Discount',  new_item_discount_path(@item) %> |
+
 <% end %>
 <%= link_to 'Back', items_path %>

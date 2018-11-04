@@ -27,7 +27,7 @@ class Cart
   def remove_all_item(item_id)
     item_id_str = item_id.to_s
     if @contents.key?(item_id_str)
-      @contents.delete(item_id.to_s)      
+      @contents.delete(item_id.to_s)
     end
   end
 
@@ -42,4 +42,7 @@ class Cart
     end
     total
   end
+
+  
+
 end
