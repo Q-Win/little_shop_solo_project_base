@@ -13,6 +13,9 @@ merchant_1 = create(:merchant)
 
 merchant_2, merchant_3, merchant_4 = create_list(:merchant, 3)
 
+adquinn = User.create(name: 'quinn',address: '123', city: "denver", state: "CO",zip: 80203, email: "quinn",password: 'quinn', role: 2)
+bob = User.create(name: 'bob',address: '123', city: "denver", state: "CO",zip: 80203, email: "bob",password_digest: 'bob', role: 1)
+
 item_1 = create(:item, user: merchant_1)
 item_2 = create(:item, user: merchant_2)
 item_3 = create(:item, user: merchant_3)

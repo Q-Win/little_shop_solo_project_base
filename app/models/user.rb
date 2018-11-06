@@ -21,6 +21,45 @@ class User < ApplicationRecord
     !Order.distinct.joins(:items).where('items.user_id=? and orders.id=?', self.id, order.id).empty?
   end
 
+  def self.top_item_selling_merch_for_month(month_num, quantity)
+    select('distinct users.*, sum(order_items.quantity) as total_sold')
+      .joins(:items)
+      .joins('join order_items on items.id=order_items.item_id')
+      .joins('join orders on orders.id=order_items.order_id')
+      .where('orders.status != ?', :cancelled)
+      .where('order_items.fulfilled = ?', true)
+      .where('extract(month from orders.updated_at) = ?', month_num)
+      .group('orders.id, users.id, order_items.id')
+      .order('total_sold desc, users.name')
+      .limit(quantity)
+  end
+
+  def self.merchants_who_fulfilled_non_cancelled_orders_this_month(month_num, quantity)
+    select('distinct users.*, orders.count as total_orders')
+      .joins(:items)
+      .joins('join order_items on items.id=order_items.item_id')
+      .joins('join orders on orders.id=order_items.order_id')
+      .where('orders.status != ?', :cancelled)
+      .where('order_items.fulfilled = ?', true)
+      .where('extract(month from orders.updated_at) = ?', month_num)
+      .group('orders.id, users.id, order_items.id')
+      .order('total_orders desc, users.name')
+      .limit(quantity)
+  end
+
+  # def self.top_merch_for_month(month_num, quantity)
+  #   select('distinct users.*, sum(order_items.quantity*order_items.price) as total_earned')
+  #     .joins(:items)
+  #     .joins('join order_items on items.id=order_items.item_id')
+  #     .joins('join orders on orders.id=order_items.order_id')
+  #     .where('orders.status != ?', :cancelled)
+  #     .where('order_items.fulfilled = ?', true)
+  #     .where('extract(month from orders.updated_at) = ?', month_num)
+  #     .group('orders.id, users.id, order_items.id')
+  #     .order('total_earned desc, users.name')
+  #     .limit(quantity)
+  # end
+
   def total_items_sold
     items
       .joins(:orders)
@@ -28,7 +67,7 @@ class User < ApplicationRecord
       .where("order_items.fulfilled=?", true)
       .sum("order_items.quantity")
   end
-  
+
   def total_inventory
     items.sum(:inventory)
   end
@@ -120,8 +159,8 @@ class User < ApplicationRecord
   end
 
   def self.merchant_by_speed(quantity, order)
-    select("distinct users.*, 
-      CASE 
+    select("distinct users.*,
+      CASE
         WHEN order_items.updated_at > order_items.created_at THEN coalesce(EXTRACT(EPOCH FROM order_items.updated_at) - EXTRACT(EPOCH FROM order_items.created_at),0)
         ELSE 1000000000 END as time_diff")
       .joins(:items)
@@ -140,4 +179,7 @@ class User < ApplicationRecord
   def self.slowest_merchants(quantity)
     merchant_by_speed(quantity, :desc)
   end
+
+  # Item.joins(:orders).where("order_items.fulfilled = ?", true).where("order_items.created_at.month = ?", Date.today.month).sum("order_items.quantity")
+
 end

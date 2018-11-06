@@ -1,12 +1,12 @@
 class SessionController < ApplicationController
-  def new 
+  def new
     if current_user
       flash[:info] = 'You are already logged in'
       redirect_to profile_path
     end
   end
 
-  def create 
+  def create
     user = User.find_by(email: params[:email])
     if user && user.authenticate(params[:password])
       if user.active?

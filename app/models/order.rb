@@ -5,7 +5,7 @@ class Order < ApplicationRecord
 
   validates_presence_of :status
 
-  def total 
+  def total
     oi = order_items.pluck("sum(quantity*price)")
     oi.sum
   end
@@ -47,4 +47,14 @@ class Order < ApplicationRecord
       .group('items.user_id, orders.id, order_items.id, users.id')
       .limit(quantity)
   end
+
+  def self.for_this_month(month_num)
+    where('extract(month from orders.updated_at) = ?', month_num)
+  end
+
+  def self.orders_for_past_month
+    where("updated_at > ?", 30.days.ago)
+  end
+
+
 end
