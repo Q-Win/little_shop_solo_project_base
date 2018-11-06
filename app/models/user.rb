@@ -35,17 +35,29 @@ class User < ApplicationRecord
   end
 
   def self.merchants_who_fulfilled_non_cancelled_orders_this_month(month_num, quantity)
-    select('distinct users.*, orders.count as total_orders')
-      .joins(:items)
-      .joins('join order_items on items.id=order_items.item_id')
-      .joins('join orders on orders.id=order_items.order_id')
-      .where('orders.status != ?', :cancelled)
-      .where('order_items.fulfilled = ?', true)
-      .where('extract(month from orders.updated_at) = ?', month_num)
-      .group('orders.id, users.id, order_items.id')
-      .order('total_orders desc, users.name')
-      .limit(quantity)
+      select('users.*, coalesce(count(order_items.id),0) as total_orders')
+        .joins('join items on items.user_id=users.id')
+        .joins('join order_items on order_items.item_id=items.id')
+        .joins('join orders on orders.id=order_items.order_id')
+        .where('orders.status != ?', :cancelled)
+        .where('order_items.fulfilled = ?', true)
+        .where('extract(month from orders.updated_at) = ?', month_num)
+        .group(:id)
+        .order('total_orders desc, users.name asc')
+        .limit(quantity)
   end
+
+
+  # select('distinct users.*, coalesce(count(order_items.id),0) as total_orders')
+  #   .joins(:items)
+  #   .joins('join order_items on items.id=order_items.item_id')
+  #   .joins('join orders on orders.id=order_items.order_id')
+  #   .where('orders.status != ?', :cancelled)
+  #   .where('order_items.fulfilled = ?', true)
+  #   .where('extract(month from orders.updated_at) = ?', month_num)
+  #   .group('orders.id, users.id, order_items.id')
+  #   .order('total_orders desc, users.name')
+  #   .limit(quantity)
 
   # def self.top_merch_for_month(month_num, quantity)
   #   select('distinct users.*, sum(order_items.quantity*order_items.price) as total_earned')
@@ -176,8 +188,23 @@ class User < ApplicationRecord
     merchant_by_speed(quantity, :asc)
   end
 
+  # def self.fastest_merchants_to_my_state(quantity)
+  #   merchant_by_speed(quantity, :asc)
+  #   .where()
+  # end
+
   def self.slowest_merchants(quantity)
     merchant_by_speed(quantity, :desc)
+  end
+
+  def self.fastest_in_my_state(state,quantity)
+    merchant_ids = User.where('state=?', state)
+    .joins(:orders)
+    .joins('join order_items on orders.id=order_items.order_id')
+    .joins('join items on order_items.item_id=items.id')
+    .pluck('items.user_id')
+
+    User.where(id: merchant_ids).fastest_merchants(quantity)
   end
 
   # Item.joins(:orders).where("order_items.fulfilled = ?", true).where("order_items.created_at.month = ?", Date.today.month).sum("order_items.quantity")
