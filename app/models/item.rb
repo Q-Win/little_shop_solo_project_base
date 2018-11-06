@@ -32,7 +32,7 @@ class Item < ApplicationRecord
     if check_for_discount
       if discounts.where("quantity <= #{amount_purchased}").count > 0
         discount = discounts.where("quantity <= #{amount_purchased}").order(:quantity).reverse
-        discount_rate = discount.first.rate/100.0
+        discount_rate = 1 - discount.first.rate/100.0
         final_price = price * discount_rate
       else
         self.price
