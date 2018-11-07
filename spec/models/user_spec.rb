@@ -378,8 +378,35 @@ RSpec.describe User, type: :model do
       create(:order_item, order: order_4, item: item_7,quantity: 1000, fulfilled: true, created_at: 1.days.ago)
 
       fastes_merchant_for_month_in_state = User.fastest_in_my_state("State 1",1)
-      # binding.pry
+
       expect(fastes_merchant_for_month_in_state).to eq([merchant_3])
     end
+
+    it 'Merchants who fulffiled my city the fastest' do
+      user = create(:user, city: 'Denver')
+      user_2 = create(:user, state: 'CO',city: "FoCo")
+      merchant_1, merchant_2, merchant_3, merchant_4 = create_list(:merchant, 4)
+      item_1, item_2 = create_list(:item, 5, user: merchant_4)
+      item_3, item_4 = create_list(:item, 5, user: merchant_2)
+      item_5, item_6 = create_list(:item, 5, user: merchant_3)
+      item_7, item_8 = create_list(:item, 5, user: merchant_1)
+
+      order_1 = create(:order, user: user, status: 'completed')
+      create(:order_item, order: order_1, item: item_1, quantity: 100, fulfilled: true, created_at: 10.days.ago)
+
+      order_2 = create(:order, user: user, status: 'completed')
+      create(:order_item, order: order_2, item: item_3, fulfilled: true,created_at: 7.days.ago)
+
+      order_3 = create(:order, user: user, status: 'completed')
+      create(:order_item, order: order_3, item: item_5,quantity: 1000, fulfilled: true, created_at: 5.days.ago)
+
+      order_4 = create(:order, user: user_2, status: 'completed')
+      create(:order_item, order: order_4, item: item_7,quantity: 1000, fulfilled: true, created_at: 1.days.ago)
+
+      fastes_merchant_for_month_in_city = User.fastest_in_my_city("Denver",2)
+
+      expect(fastes_merchant_for_month_in_city).to eq([merchant_3,merchant_2])
+    end
+
   end
 end
