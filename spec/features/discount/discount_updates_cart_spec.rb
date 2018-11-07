@@ -23,6 +23,10 @@ RSpec.describe 'When visiting merchants' do
     expect(page).to have_content("Rate")
     expect(page).to have_content("Quantity")
 
+    fill_in :Rate, with: "alot"
+    fill_in :Quantity, with: 3
+    click_button 'Create Discount'
+
     fill_in :Rate, with: 20
     fill_in :Quantity, with: 3
     click_button 'Create Discount'
