@@ -4,7 +4,14 @@ class MerchantsController < ApplicationController
       @merchants = User.where(role: :merchant).order(:name)
     else
       @merchants = User.where(role: :merchant, active: true).order(:name)
-    end 
+    end
+    @top_merch_for_month = User.top_item_selling_merch_for_month(Time.now.month, 10)
+    @merch_who_fullfill = User.merchants_who_fulfilled_non_cancelled_orders_this_month(Time.now.month, 10)
+    if current_user
+    # binding.pry
+      @fast_in_my_state = User.fastest_in_my_state(current_user.state,5)
+      @fast_in_my_city = User.fastest_in_my_city(current_user.city,5)
+    end
   end
 
   def show

@@ -11,6 +11,26 @@
     </tr>
   </thead>
 
+  <h2> Merch who sell the most items </h2>
+  <% @top_merch_for_month.each do |merch| %>
+    <%= merch.name %>
+  <%end%>
+
+  <h2> Merch who fullfill the most orders</h2>
+  <% @merch_who_fullfill.each do |merch| %>
+    <%= merch.name %>
+  <%end%>
+<% if current_user %>
+    <h2> Merch who fullfill orders in my state the fastest</h2>
+    <% @fast_in_my_state.each do |merch| %>
+      <%= merch.name %>
+    <%end%>
+
+    <h2> Merch who fullfill orders in my city the fastest</h2>
+    <% @fast_in_my_city.each do |merch| %>
+      <%= merch.name %>
+    <%end%>
+<%end%>
   <tbody>
     <% @merchants.each do |merchant| %>
       <tr id="merchant-<%= merchant.id %>">
